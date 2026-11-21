@@ -38,10 +38,12 @@
       gap: 6px;
       overflow: hidden;
       border: 0;
-      border-radius: 5px;
-      background: transparent !important;
+      border-radius: 16px;
+      background: rgba(20, 20, 20, 0.22) !important;
       font-family: Arial, sans-serif;
       font-weight: bold;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
 
     .output {
@@ -50,8 +52,8 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      border: 1px solid #fff !important;
-      border-radius: 5px;
+      border: 0 !important;
+      border-radius: 12px;
       background: transparent !important;
     }
 
@@ -68,6 +70,8 @@
       text-align: left;
       scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
       scrollbar-width: thin;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
 
     .history::-webkit-scrollbar {
@@ -104,7 +108,6 @@
       resize: none;
       overflow-y: auto;
       border: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
       border-radius: 0;
       outline: none;
       background: transparent !important;
@@ -122,6 +125,8 @@
       appearance: none;
       scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
       scrollbar-width: thin;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
 
     .buttons {
@@ -167,6 +172,8 @@
       transition: background 0.2s ease-in-out;
       -webkit-appearance: none;
       appearance: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
 
     .buttons input[type="button"]:hover {
