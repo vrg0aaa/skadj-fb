@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Scientific Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #calcWidget,
+    #calcWidget * {
+      box-sizing: border-box;
+    }
+
+    #calcWidget {
+      width: 100%;
+      height: 100%;
+      max-height: 480px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 5px;
+      background: transparent !important;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    .output {
+      flex: 0 0 160px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #fff !important;
+      border-radius: 5px;
+      background: transparent !important;
+    }
+
+    .history {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 4px 7px;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 11px;
+      font-weight: normal;
+      line-height: 1.35;
+      text-align: left;
+      scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+      scrollbar-width: thin;
+    }
+
+    .history::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .history::-webkit-scrollbar-thumb {
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .history:empty::before {
+      content: "history";
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .history .entry {
+      padding: 1px 0;
+      word-break: break-all;
+    }
+
+    .history .res {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .display {
+      display: block;
+      flex: 0 0 42px;
+      width: 100%;
+      height: 42px;
+      margin: 0;
+      padding: 4px 7px;
+      resize: none;
+      overflow-y: auto;
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
+      border-radius: 0;
+      outline: none;
+      background: transparent !important;
+      box-shadow: none;
+      color: #fff !important;
+      -webkit-text-fill-color: #fff !important;
+      opacity: 1 !important;
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      font-weight: bold;
+      line-height: 1.2;
+      text-align: left;
+      word-break: break-all;
+      -webkit-appearance: none;
+      appearance: none;
+      scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+      scrollbar-width: thin;
+    }
+
+    .buttons {
+      flex: 1 1 0;
+      min-height: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+    }
+
+    .row {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      gap: 4px;
+    }
+
+    .buttons input[type="button"] {
+      flex: 1 1 0;
+      width: 0;
+      height: auto;
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      padding: 0 2px;
+      overflow: hidden;
+      border: 1px solid #fff !important;
+      border-radius: 5px;
+      background: transparent !important;
+      box-shadow: none;
+      color: #fff !important;
+      -webkit-text-fill-color: #fff !important;
+      font-family: Arial, sans-serif;
+      font-size: clamp(8px, 6.2vw, 14px);
+      font-weight: bold;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .buttons input[type="button"]:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .buttons input[type="button"]:active {
+      background: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    @media (max-height: 300px) {
+      .output {
+        flex-basis: 40%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="calcWidget">
+    <div class="output">
+      <div class="history" id="calc-history"></div>
+      <textarea
+        id="calc-display"
+        class="display"
+        readonly
+        aria-label="Calculator display"
+      ></textarea>
+    </div>
+
+    <div class="buttons" aria-label="Calculator buttons">
+      <div class="row">
+        <input type="button" value="C" aria-label="Clear">
+        <input type="button" value="⌫" aria-label="Backspace">
+        <input type="button" value="(">
+        <input type="button" value=")">
+      </div>
+      <div class="row">
+        <input type="button" value="7">
+        <input type="button" value="8">
+        <input type="button" value="9">
+        <input type="button" value="/">
+      </div>
+      <div class="row">
+        <input type="button" value="4">
+        <input type="button" value="5">
+        <input type="button" value="6">
+        <input type="button" value="*">
+      </div>
+      <div class="row">
+        <input type="button" value="1">
+        <input type="button" value="2">
+        <input type="button" value="3">
+        <input type="button" value="-">
+      </div>
+      <div class="row">
+        <input type="button" value="0">
+        <input type="button" value=".">
+        <input type="button" value=",">
+        <input type="button" value="+">
+      </div>
+      <div class="row">
+        <input type="button" value="sin(">
+        <input type="button" value="cos(">
+        <input type="button" value="tan(">
+        <input type="button" value="^">
+      </div>
+      <div class="row">
+        <input type="button" value="log(">
+        <input type="button" value="log2(">
+        <input type="button" value="log10(">
+        <input type="button" value="sqrt(">
+      </div>
+      <div class="row">
+        <input type="button" value="e">
+        <input type="button" value="pi">
+        <input type="button" value="!">
+        <input type="button" value="%">
+      </div>
+      <div class="row">
+        <input type="button" value="l2e">
+        <input type="button" value="l10e">
+        <input type="button" value="exp(">
+        <input type="button" value="=">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      if (/[?&]preview(=|&|$)/.test(location.search)) {
+        document.documentElement.style.background = "#1e1e1e";
+      }
+
+      var screen = document.getElementById("calc-display");
+      var historyBox = document.getElementById("calc-history");
+      var isDegrees = true;
+      var MAX_HISTORY = 100;
+
+      var insertText = {
+        "^": "^(",
+        "l2e": String(Math.LOG2E),
+        "l10e": String(Math.LOG10E)
+      };
+
+      function show(text) {
+        screen.value = text;
+        screen.scrollTop = screen.scrollHeight;
+      }
+
+      function addHistory(expr, result) {
+        var row = document.createElement("div");
+        row.className = "entry";
+        row.appendChild(document.createTextNode(expr + " "));
+
+        var res = document.createElement("span");
+        res.className = "res";
+        res.textContent = "= " + result;
+        row.appendChild(res);
+
+        historyBox.appendChild(row);
+
+        while (historyBox.children.length > MAX_HISTORY) {
+          historyBox.removeChild(historyBox.firstChild);
+        }
+
+        historyBox.scrollTop = historyBox.scrollHeight;
+      }
+
+      function backspace() {
+        show(screen.value.slice(0, -1));
+      }
+
+      function addDecimal() {
+        var lastNumber = screen.value.match(/[0-9.]*$/)[0];
+
+        if (lastNumber.indexOf(".") === -1) {
+          show(screen.value + ".");
+        }
+      }
+
+      function calculate() {
+        var original = screen.value;
+        if (!original.trim()) return;
+
+        var expression = original;
+
+        try {
+          if (isDegrees) {
+            var radians = Math.PI / 180;
+            expression = expression.replace(/sin\(/g, "sin(" + radians + "*");
+            expression = expression.replace(/cos\(/g, "cos(" + radians + "*");
+            expression = expression.replace(/tan\(/g, "tan(" + radians + "*");
+          }
+
+          var result = math.evaluate(expression);
+          if (result === undefined) throw new Error("No result");
+
+          var text = math.format(result, 14);
+          addHistory(original, text);
+          show(text);
+        } catch (err) {
+          show("Error");
+
+          setTimeout(function () {
+            if (screen.value === "Error") show("");
+          }, 2000);
+        }
+      }
+
+      document.querySelector(".buttons").addEventListener("click", function (event) {
+        var btn = event.target;
+        if (!btn || btn.type !== "button") return;
+
+        var value = btn.value;
+
+        if (value === "C") show("");
+        else if (value === "⌫") backspace();
+        else if (value === ".") addDecimal();
+        else if (value === "=") calculate();
+        else if (Object.prototype.hasOwnProperty.call(insertText, value)) {
+          show(screen.value + insertText[value]);
+        } else {
+          show(screen.value + value);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
